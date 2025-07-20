@@ -12,13 +12,17 @@ import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SlashCommand } from './interfaces/command.interface';
+import { GeminiService } from 'src/ai/gemini.service';
 
 @Injectable()
 export class BotService implements OnModuleInit {
   private client: Client;
   private commands = new Map<string, SlashCommand>();
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private geminiService: GeminiService,
+  ) {
     this.client = new Client({
       intents: [
         GatewayIntentBits.Guilds,
@@ -26,6 +30,7 @@ export class BotService implements OnModuleInit {
         GatewayIntentBits.MessageContent,
       ],
     });
+    (this.client as any)['geminiService'] = this.geminiService;
   }
 
   async onModuleInit() {
